@@ -1,0 +1,18 @@
+Sample Data Directory
+===================
+
+This directory is intended to store sample videos and images for testing the Traffic Management System.
+
+Recommended sample files:
+- traffic_video.mp4: Sample traffic video with vehicles and pedestrians
+- intersection.jpg: Sample intersection image
+- crosswalk.mp4: Video showing pedestrian crosswalk activity
+- violation_example.mp4: Video with traffic violations for testing
+
+You can add your own video/image files here for testing the application.
+
+Supported formats:
+- Videos: .mp4, .avi, .mov, .mkv
+- Images: .jpg, .jpeg, .png, .bmp
+
+Note: The YOLOv8 model will be automatically downloaded when first run.

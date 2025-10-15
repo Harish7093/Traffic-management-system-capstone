@@ -1,0 +1,2 @@
+timestamp,violation_type,vehicle_class,confidence,bbox_x1,bbox_y1,bbox_x2,bbox_y2
+2025-10-16 02:56:05.062448,red_light_violation,car,0.89,300,350,450,450
