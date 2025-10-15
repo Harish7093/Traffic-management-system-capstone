@@ -12,5 +12,5 @@ __all__ = [
     'violation_detection',
     'vehicle_classification',
     'pedestrian_monitoring',
-    'traffic_light'
+    
 ]

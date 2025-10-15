@@ -18,26 +18,41 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Hide default Streamlit navigation
+hide_streamlit_style = """
+    <style>
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 def main():
     """Main application function with sidebar navigation"""
     
-    # Sidebar navigation
-    st.sidebar.title("🚦 Traffic Management System")
-    st.sidebar.markdown("---")
-    
-    # Navigation menu
+    # Sidebar navigation - clean design without extra headers
     pages = {
-        "🚥 Addddaptive Traffic Signals": adaptive_traffic,
+        "🚥 Adaptive Traffic Signals": adaptive_traffic,
         "⚠️ Traffic Violation Detection": violation_detection,
         "🚗 Vehicle Classification": vehicle_classification,
         "🚶 Pedestrian Monitoring": pedestrian_monitoring
     }
     
-    selected_page = st.sidebar.selectbox(
-        "Select a Feature:",
-        list(pages.keys()),
-        index=0
-    )
+    # Initialize session state for selected page
+    if 'selected_page' not in st.session_state:
+        st.session_state.selected_page = "🚥 Adaptive Traffic Signals"
+    
+    # Display navigation buttons
+    for page_name in pages.keys():
+        if st.sidebar.button(
+            page_name, 
+            key=f"nav_{page_name}",
+            use_container_width=True,
+            type="primary" if st.session_state.selected_page == page_name else "secondary"
+        ):
+            st.session_state.selected_page = page_name
+            st.rerun()
     
     # Display selected page
     st.sidebar.markdown("---")
@@ -48,7 +63,7 @@ def main():
     )
     
     # Run the selected page
-    pages[selected_page].show()
+    pages[st.session_state.selected_page].show()
 
 if __name__ == "__main__":
     main()

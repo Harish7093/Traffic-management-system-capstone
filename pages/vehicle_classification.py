@@ -22,8 +22,6 @@ def show():
         st.session_state.vehicle_counts = {}
     
     # Sidebar controls
-    st.sidebar.header("Classification Settings")
-    
     # Input method selection
     input_method = st.sidebar.radio(
         "Select Input Method:",

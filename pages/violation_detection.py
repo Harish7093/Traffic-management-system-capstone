@@ -23,8 +23,6 @@ def show():
         st.session_state.violation_stats = {}
     
     # Sidebar controls
-    st.sidebar.header("Violation Detection Settings")
-    
     # Input method selection
     input_method = st.sidebar.radio(
         "Select Input Method:",

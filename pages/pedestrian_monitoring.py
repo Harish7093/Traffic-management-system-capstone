@@ -23,12 +23,10 @@ def show():
         st.session_state.crosswalk_zones = []
     
     # Sidebar controls
-    st.sidebar.header("Monitoring Settings")
-    
     # Input method selection
     input_method = st.sidebar.radio(
         "Select Input Method:",
-        ["Upload Video", "Upload Image", "Live Webcam"]
+        ["Upload Video", "Upload Image", "CC -Live Webcam"]
     )
     
     # Traffic light state for crosswalk safety
@@ -276,7 +274,7 @@ def show():
                     monitoring_data['timestamp']
                 )
         
-        elif input_method == "Live Webcam":
+        elif input_method == "CC -Live Webcam":
             st.info("📹 Live webcam monitoring - Click 'Capture Frame' to monitor pedestrians")
             
             col_btn1, col_btn2 = st.columns(2)

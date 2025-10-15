@@ -151,6 +151,55 @@ class TrafficAnalyzer:
     """Traffic analysis utilities"""
     
     @staticmethod
+    def auto_detect_lanes(detections, frame_width, frame_height):
+        """Automatically detect number of lanes based on vehicle distribution"""
+        if not detections or len(detections) == 0:
+            return 2  # Default to 2 lanes if no vehicles detected
+        
+        # Get x-coordinates of vehicle centers
+        vehicle_x_positions = []
+        for detection in detections:
+            x1, y1, x2, y2 = detection['bbox']
+            center_x = (x1 + x2) // 2
+            vehicle_x_positions.append(center_x)
+        
+        if len(vehicle_x_positions) < 2:
+            return 2  # Default to 2 lanes if too few vehicles
+        
+        # Sort positions
+        vehicle_x_positions.sort()
+        
+        # Calculate gaps between vehicles
+        gaps = []
+        for i in range(1, len(vehicle_x_positions)):
+            gap = vehicle_x_positions[i] - vehicle_x_positions[i-1]
+            gaps.append(gap)
+        
+        if not gaps:
+            return 2
+        
+        # Use clustering approach - find significant gaps
+        avg_gap = sum(gaps) / len(gaps)
+        significant_gaps = [g for g in gaps if g > avg_gap * 1.5]
+        
+        # Number of lanes = number of significant gaps + 1
+        detected_lanes = len(significant_gaps) + 1
+        
+        # Constrain between 2 and 6 lanes
+        detected_lanes = max(2, min(6, detected_lanes))
+        
+        # If we have many vehicles spread across width, estimate based on density
+        if len(vehicle_x_positions) >= 4:
+            # Calculate approximate lane width based on typical vehicle distribution
+            spread = max(vehicle_x_positions) - min(vehicle_x_positions)
+            if spread > frame_width * 0.7:  # Vehicles spread across most of width
+                # Estimate lanes based on vehicle density
+                estimated_lanes = max(2, min(6, len(vehicle_x_positions) // 2))
+                detected_lanes = max(detected_lanes, estimated_lanes)
+        
+        return detected_lanes
+    
+    @staticmethod
     def calculate_vehicle_density(detections, frame_width, frame_height, lanes=4):
         """Calculate vehicle density per lane"""
         if not detections:

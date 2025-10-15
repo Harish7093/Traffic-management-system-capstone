@@ -88,7 +88,7 @@ traffic-management-system/
 2. **Select a feature** from the sidebar navigation
 3. **Choose input method**: Upload video/image or use live webcam
 4. **Configure settings** using the sidebar controls
-5. **View results** in real-time with interactive visualizations
+5. **View results** in real-time with in6teractive visualizations
 
 ### Input Methods
 

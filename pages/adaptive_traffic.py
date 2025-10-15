@@ -23,17 +23,22 @@ def show():
         st.session_state.timing_history = []
     
     # Sidebar controls
-    st.sidebar.header("Traffic Signal Controls")
-    
     # Input method selection
     input_method = st.sidebar.radio(
         "Select Input Method:",
-        ["Upload Video", "Upload Image", "Live Webcam"]
+        ["Upload Video", "Upload Image", "CC -Live Camera"]
     )
     
     # Traffic signal parameters
     st.sidebar.subheader("Signal Parameters")
-    num_lanes = st.sidebar.slider("Number of Lanes", 2, 6, 4)
+    
+    # Show lane slider only for Video and Webcam (not for Upload Image - auto-detected)
+    if input_method in ["Upload Video", "CC -Live Camera"]:
+        num_lanes = st.sidebar.slider("Number of Lanes", 2, 6, 4)
+    else:
+        num_lanes = 4  # Default value (not used for Upload Image)
+        st.sidebar.info("🤖 Lanes are **auto-detected** from uploaded images")
+    
     base_time = st.sidebar.slider("Base Signal Time (seconds)", 15, 60, 30)
     max_time = st.sidebar.slider("Maximum Signal Time (seconds)", 30, 120, 60)
     
@@ -137,9 +142,17 @@ def show():
                 # Get frame dimensions
                 frame_height, frame_width = frame.shape[:2]
                 
-                # Calculate density
+                # Automatically detect number of lanes based on vehicle distribution
+                detected_lanes = st.session_state.traffic_analyzer.auto_detect_lanes(
+                    vehicles, frame_width, frame_height
+                )
+                
+                # Show detected lanes info
+                st.info(f"🛣️ **Automatically Detected: {detected_lanes} lanes** based on vehicle distribution")
+                
+                # Calculate density using detected lanes
                 lane_densities = st.session_state.traffic_analyzer.calculate_vehicle_density(
-                    vehicles, frame_width, frame_height, num_lanes
+                    vehicles, frame_width, frame_height, detected_lanes
                 )
                 
                 adaptive_timings = st.session_state.traffic_analyzer.calculate_adaptive_timing(
@@ -148,13 +161,13 @@ def show():
                 
                 # Draw lane dividers on frame
                 display_frame = frame.copy()
-                lane_width = frame_width // num_lanes
-                for i in range(1, num_lanes):
+                lane_width = frame_width // detected_lanes
+                for i in range(1, detected_lanes):
                     x = i * lane_width
                     cv2.line(display_frame, (x, 0), (x, frame_height), (0, 255, 255), 2)
                 
                 # Add lane labels and vehicle counts
-                for i in range(num_lanes):
+                for i in range(detected_lanes):
                     x_center = (i * lane_width) + (lane_width // 2)
                     y_pos = 30
                     # Draw background for text
@@ -177,8 +190,8 @@ def show():
                 
                 # Display lane-wise breakdown
                 st.subheader("Lane-wise Vehicle Distribution")
-                cols = st.columns(num_lanes)
-                for i in range(num_lanes):
+                cols = st.columns(detected_lanes)
+                for i in range(detected_lanes):
                     with cols[i]:
                         st.metric(f"Lane {i+1}", f"{lane_densities[i]} vehicles")
                         st.caption(f"Signal Time: {adaptive_timings[i]}s")
@@ -198,13 +211,13 @@ def show():
                 # Show adaptive timing recommendation
                 st.info("💡 **Adaptive Signal Timing Recommendation**")
                 timing_df = pd.DataFrame({
-                    'Lane': [f"Lane {i+1}" for i in range(num_lanes)],
+                    'Lane': [f"Lane {i+1}" for i in range(detected_lanes)],
                     'Vehicles': lane_densities,
                     'Recommended Time (s)': adaptive_timings
                 })
                 st.dataframe(timing_df, use_container_width=True)
         
-        elif input_method == "Live Webcam":
+        elif input_method == "CC -Live Camera":
             st.info("📹 Live webcam detection - Click 'Capture Frame' to analyze traffic density")
             
             col_btn1, col_btn2 = st.columns(2)
